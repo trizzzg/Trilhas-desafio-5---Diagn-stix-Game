@@ -1,0 +1,1242 @@
+fileFormatVersion: 2
+guid: 1d90938ed8fd35c42ba0a49fde45d2ce
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4891780885591033970
+    second: speech baloons 1_0
+  - first:
+      213: 3915197342800255187
+    second: speech baloons 1_1
+  - first:
+      213: -5284309258176866297
+    second: speech baloons 1_2
+  - first:
+      213: -5040391572461127386
+    second: speech baloons 1_3
+  - first:
+      213: 4300956839840735386
+    second: speech baloons 1_4
+  - first:
+      213: -5426779176080397702
+    second: speech baloons 1_5
+  - first:
+      213: -2668481849057551742
+    second: speech baloons 1_6
+  - first:
+      213: -4562670945049351915
+    second: speech baloons 1_7
+  - first:
+      213: 8256253743610557883
+    second: speech baloons 1_8
+  - first:
+      213: -6118091203192920933
+    second: speech baloons 1_9
+  - first:
+      213: 7389077867644189250
+    second: speech baloons 1_10
+  - first:
+      213: 5769211608609356460
+    second: speech baloons 1_11
+  - first:
+      213: -3840398184772724181
+    second: speech baloons 1_12
+  - first:
+      213: -8501145123141030806
+    second: speech baloons 1_13
+  - first:
+      213: 7916232460828666021
+    second: speech baloons 1_14
+  - first:
+      213: -2883340500184815938
+    second: speech baloons 1_15
+  - first:
+      213: 5537954390203455225
+    second: speech baloons 1_16
+  - first:
+      213: -6681678654115359457
+    second: speech baloons 1_17
+  - first:
+      213: 6451681012340149567
+    second: speech baloons 1_18
+  - first:
+      213: -6135997569769743088
+    second: speech baloons 1_19
+  - first:
+      213: 7719653120260069021
+    second: speech baloons 1_20
+  - first:
+      213: 4222531120834537013
+    second: speech baloons 1_21
+  - first:
+      213: -1825138796704929736
+    second: speech baloons 1_22
+  - first:
+      213: -7157393423333600180
+    second: speech baloons 1_23
+  - first:
+      213: 1216282515606780406
+    second: speech baloons 1_24
+  - first:
+      213: 7461552233753261343
+    second: speech baloons 1_25
+  - first:
+      213: 7163942583975926930
+    second: speech baloons 1_26
+  - first:
+      213: 8293991068854079650
+    second: speech baloons 1_27
+  - first:
+      213: -1735975030913461024
+    second: speech baloons 1_28
+  - first:
+      213: 520829716556606876
+    second: speech baloons 1_29
+  - first:
+      213: 4315540224571163365
+    second: speech baloons 1_30
+  - first:
+      213: 321157240080930571
+    second: speech baloons 1_31
+  - first:
+      213: 8664215306066629345
+    second: speech baloons 1_32
+  - first:
+      213: -1705992963384263383
+    second: speech baloons 1_33
+  - first:
+      213: 387791487081395493
+    second: speech baloons 1_34
+  - first:
+      213: 631326380839356596
+    second: speech baloons 1_35
+  - first:
+      213: -1636029417583811218
+    second: speech baloons 1_36
+  - first:
+      213: -9168547820141101000
+    second: speech baloons 1_37
+  - first:
+      213: 2429424726105968461
+    second: speech baloons 1_38
+  - first:
+      213: -2493284086259928471
+    second: speech baloons 1_39
+  - first:
+      213: -567742840679583795
+    second: speech baloons 1_40
+  - first:
+      213: 3078633090752749392
+    second: speech baloons 1_41
+  - first:
+      213: -6691172186334514905
+    second: speech baloons 1_42
+  - first:
+      213: 103614882359209076
+    second: speech baloons 1_43
+  - first:
+      213: 2112131202389227514
+    second: speech baloons 1_44
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: speech baloons 1_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3469
+        width: 710
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27803b43cc813e340800000000000000
+      internalID: 4891780885591033970
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_1
+      rect:
+        serializedVersion: 2
+        x: 709
+        y: 3469
+        width: 209
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d8992b5d33955630800000000000000
+      internalID: 3915197342800255187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_2
+      rect:
+        serializedVersion: 2
+        x: 917
+        y: 3469
+        width: 209
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7085f072abc5aa6b0800000000000000
+      internalID: -5284309258176866297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_3
+      rect:
+        serializedVersion: 2
+        x: 1125
+        y: 3469
+        width: 105
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 629f49ae19eec0ab0800000000000000
+      internalID: -5040391572461127386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_4
+      rect:
+        serializedVersion: 2
+        x: 1229
+        y: 3469
+        width: 314
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a906ef8557110bb30800000000000000
+      internalID: 4300956839840735386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_5
+      rect:
+        serializedVersion: 2
+        x: 1542
+        y: 3469
+        width: 104
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7aad37771530b4b0800000000000000
+      internalID: -5426779176080397702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_6
+      rect:
+        serializedVersion: 2
+        x: 1645
+        y: 3469
+        width: 418
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28ad85185e5a7fad0800000000000000
+      internalID: -2668481849057551742
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_7
+      rect:
+        serializedVersion: 2
+        x: 2062
+        y: 3469
+        width: 937
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 519665513f22ea0c0800000000000000
+      internalID: -4562670945049351915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_8
+      rect:
+        serializedVersion: 2
+        x: 2998
+        y: 3469
+        width: 209
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb5756b490b149270800000000000000
+      internalID: 8256253743610557883
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_9
+      rect:
+        serializedVersion: 2
+        x: 3206
+        y: 3469
+        width: 418
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b946e3a377c281ba0800000000000000
+      internalID: -6118091203192920933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_10
+      rect:
+        serializedVersion: 2
+        x: 3623
+        y: 3469
+        width: 209
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24af1aeeb274b8660800000000000000
+      internalID: 7389077867644189250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_11
+      rect:
+        serializedVersion: 2
+        x: 3831
+        y: 3469
+        width: 209
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: caa7835346b501050800000000000000
+      internalID: 5769211608609356460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_12
+      rect:
+        serializedVersion: 2
+        x: 4039
+        y: 3469
+        width: 105
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2a1190c23a24bac0800000000000000
+      internalID: -3840398184772724181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_13
+      rect:
+        serializedVersion: 2
+        x: 4143
+        y: 3469
+        width: 209
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6c622f2d8dd50a80800000000000000
+      internalID: -8501145123141030806
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_14
+      rect:
+        serializedVersion: 2
+        x: 4351
+        y: 3469
+        width: 1353
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a8eb1b2b7b1cdd60800000000000000
+      internalID: 7916232460828666021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_15
+      rect:
+        serializedVersion: 2
+        x: 7097
+        y: 3469
+        width: 167
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb6acf777115cf7d0800000000000000
+      internalID: -2883340500184815938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_16
+      rect:
+        serializedVersion: 2
+        x: 7263
+        y: 3469
+        width: 610
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f654623d24cadc40800000000000000
+      internalID: 5537954390203455225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_17
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 2650
+        width: 1133
+        height: 598
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f15d4264aa8e543a0800000000000000
+      internalID: -6681678654115359457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_18
+      rect:
+        serializedVersion: 2
+        x: 1793
+        y: 2383
+        width: 1134
+        height: 865
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3dcaa0c2b9f88950800000000000000
+      internalID: 6451681012340149567
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_19
+      rect:
+        serializedVersion: 2
+        x: 3083
+        y: 2329
+        width: 1989
+        height: 919
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01dd63f58be88daa0800000000000000
+      internalID: -6135997569769743088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_20
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 1670
+        width: 1828
+        height: 758
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d965656cc97b12b60800000000000000
+      internalID: 7719653120260069021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_21
+      rect:
+        serializedVersion: 2
+        x: 2404
+        y: 1525
+        width: 1641
+        height: 705
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 536ef56bea1799a30800000000000000
+      internalID: 4222531120834537013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_22
+      rect:
+        serializedVersion: 2
+        x: 4212
+        y: 1457
+        width: 1455
+        height: 677
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8386e943fedcba6e0800000000000000
+      internalID: -1825138796704929736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_23
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 655
+        width: 892
+        height: 918
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c44db7c5a94dbac90800000000000000
+      internalID: -7157393423333600180
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_24
+      rect:
+        serializedVersion: 2
+        x: 1597
+        y: 655
+        width: 812
+        height: 919
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f9b249f08a11e010800000000000000
+      internalID: 1216282515606780406
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_25
+      rect:
+        serializedVersion: 2
+        x: 2628
+        y: 655
+        width: 1347
+        height: 784
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f15b2ed3932cc8760800000000000000
+      internalID: 7461552233753261343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_26
+      rect:
+        serializedVersion: 2
+        x: 4142
+        y: 653
+        width: 624
+        height: 626
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29cdd2de2df6b6360800000000000000
+      internalID: 7163942583975926930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_27
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 440
+        width: 191
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a05f450fec2a1370800000000000000
+      internalID: 8293991068854079650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_28
+      rect:
+        serializedVersion: 2
+        x: 190
+        y: 440
+        width: 313
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e4947f28e398e7e0800000000000000
+      internalID: -1735975030913461024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_29
+      rect:
+        serializedVersion: 2
+        x: 502
+        y: 440
+        width: 209
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9de2d32edb5a3700800000000000000
+      internalID: 520829716556606876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_30
+      rect:
+        serializedVersion: 2
+        x: 710
+        y: 440
+        width: 937
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e2497338f0e3eb30800000000000000
+      internalID: 4315540224571163365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_31
+      rect:
+        serializedVersion: 2
+        x: 1646
+        y: 440
+        width: 209
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b07911ceecaf47400800000000000000
+      internalID: 321157240080930571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_32
+      rect:
+        serializedVersion: 2
+        x: 1854
+        y: 440
+        width: 416
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e29a977ae97d3870800000000000000
+      internalID: 8664215306066629345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_33
+      rect:
+        serializedVersion: 2
+        x: 2269
+        y: 440
+        width: 209
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92d3a2440781358e0800000000000000
+      internalID: -1705992963384263383
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_34
+      rect:
+        serializedVersion: 2
+        x: 2477
+        y: 440
+        width: 418
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 525386a8d46b16500800000000000000
+      internalID: 387791487081395493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_35
+      rect:
+        serializedVersion: 2
+        x: 2894
+        y: 440
+        width: 312
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b8434b9ffbe2c800800000000000000
+      internalID: 631326380839356596
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_36
+      rect:
+        serializedVersion: 2
+        x: 3205
+        y: 440
+        width: 210
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e65e3daa9e7ab49e0800000000000000
+      internalID: -1636029417583811218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_37
+      rect:
+        serializedVersion: 2
+        x: 3414
+        y: 440
+        width: 1145
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 830ce4aa556c2c080800000000000000
+      internalID: -9168547820141101000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_38
+      rect:
+        serializedVersion: 2
+        x: 4558
+        y: 440
+        width: 209
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4fc810baec07b120800000000000000
+      internalID: 2429424726105968461
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_39
+      rect:
+        serializedVersion: 2
+        x: 4766
+        y: 440
+        width: 418
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 962b7526553166dd0800000000000000
+      internalID: -2493284086259928471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_40
+      rect:
+        serializedVersion: 2
+        x: 5183
+        y: 440
+        width: 209
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcfa589f4e8fe18f0800000000000000
+      internalID: -567742840679583795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_41
+      rect:
+        serializedVersion: 2
+        x: 5391
+        y: 440
+        width: 130
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05f94181c7089ba20800000000000000
+      internalID: 3078633090752749392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_42
+      rect:
+        serializedVersion: 2
+        x: 6675
+        y: 440
+        width: 173
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 721be8e095e2423a0800000000000000
+      internalID: -6691172186334514905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_43
+      rect:
+        serializedVersion: 2
+        x: 6847
+        y: 440
+        width: 624
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47ce670cf2d107100800000000000000
+      internalID: 103614882359209076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: speech baloons 1_44
+      rect:
+        serializedVersion: 2
+        x: 7470
+        y: 440
+        width: 402
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af7bd65532ccf4d10800000000000000
+      internalID: 2112131202389227514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

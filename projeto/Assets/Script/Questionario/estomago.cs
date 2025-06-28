@@ -253,7 +253,7 @@ public class StomachQuiz : MonoBehaviour
                 question = "17. Você sente distensão abdominal?",
                 options = new Dictionary<string, (string, int)>
                 {
-                    {"A", ("Sim, importante", 4)},
+                    {"A", ("Sim, intensa", 4)},
                     {"B", ("Sim, leve", 2)},
                     {"C", ("Não", 0)}
                 }

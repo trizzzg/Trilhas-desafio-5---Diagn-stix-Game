@@ -232,7 +232,7 @@ public class ChestQuiz : MonoBehaviour
                 question = "15. Você tem inchaço nas pernas?",
                 options = new Dictionary<string, (string, int)>
                 {
-                    {"A", ("Sim, importante", 5)},
+                    {"A", ("Sim, intensa", 5)},
                     {"B", ("Sim, leve", 3)},
                     {"C", ("Não", 0)}
                 }

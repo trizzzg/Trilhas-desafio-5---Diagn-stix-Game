@@ -220,7 +220,7 @@ public class ThroatQuiz : MonoBehaviour
                 question = "14. Você sente dificuldade para respirar?",
                 options = new Dictionary<string, (string, int)>
                 {
-                    {"A", ("Sim, importante", 10)},
+                    {"A", ("Sim, intensa", 10)},
                     {"B", ("Sim, leve", 5)},
                     {"C", ("Não", 0)}
                 }
@@ -356,7 +356,7 @@ public class ThroatQuiz : MonoBehaviour
         diagnoses.Clear();
 
         // 1. Emergências (prioridade máxima)
-        if (responses.TryGetValue("dificuldade_respirar", out var respRespirar) && respRespirar == "Sim, importante")
+        if (responses.TryGetValue("dificuldade_respirar", out var respRespirar) && respRespirar == "Sim, intensa")
         {
             diagnoses.Add(new Diagnosis
             {

@@ -121,7 +121,7 @@ public class FeetQuiz : MonoBehaviour
                 question = "5. Você notou inchaço no local?",
                 options = new Dictionary<string, (string, int)>
                 {
-                    {"A", ("Sim, importante", 5)},
+                    {"A", ("Sim, intensa", 5)},
                     {"B", ("Sim, leve", 3)},
                     {"C", ("Não", 0)}
                 }
@@ -372,7 +372,7 @@ public class FeetQuiz : MonoBehaviour
             });
         }
 
-        if (responses.TryGetValue("inchaço", out var respInchaco) && respInchaco == "Sim, importante" &&
+        if (responses.TryGetValue("inchaço", out var respInchaco) && respInchaco == "Sim, intensa" &&
             responses.TryGetValue("vermelhidão", out var respVermelho) && respVermelho == "Sim" &&
             responses.TryGetValue("febre", out var respFebre) && respFebre != "Não")
         {

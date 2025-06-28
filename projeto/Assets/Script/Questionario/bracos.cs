@@ -122,7 +122,7 @@ public class ArmsQuiz : MonoBehaviour
                 question = "5. Você notou inchaço no local?",
                 options = new Dictionary<string, (string, int)>
                 {
-                    {"A", ("Sim, importante", 5)},
+                    {"A", ("Sim, intensa", 5)},
                     {"B", ("Sim, leve", 3)},
                     {"C", ("Não", 0)}
                 }
@@ -176,7 +176,7 @@ public class ArmsQuiz : MonoBehaviour
                 question = "10. Você tem dificuldade para segurar objetos ou fraqueza no braço?",
                 options = new Dictionary<string, (string, int)>
                 {
-                    {"A", ("Sim, importante", 6)},
+                    {"A", ("Sim, intensa", 6)},
                     {"B", ("Sim, leve", 3)},
                     {"C", ("Não", 0)}
                 }
@@ -208,7 +208,7 @@ public class ArmsQuiz : MonoBehaviour
                 question = "13. Você sente rigidez articular?",
                 options = new Dictionary<string, (string, int)>
                 {
-                    {"A", ("Sim, importante", 5)},
+                    {"A", ("Sim, intensa", 5)},
                     {"B", ("Sim, leve", 3)},
                     {"C", ("Não", 0)}
                 }
@@ -353,7 +353,7 @@ public class ArmsQuiz : MonoBehaviour
         diagnoses.Clear();
 
         if (responses.TryGetValue("trauma", out var respTrauma) && respTrauma == "Sim, trauma grave" &&
-            responses.TryGetValue("fraqueza", out var respFraqueza) && respFraqueza == "Sim, importante")
+            responses.TryGetValue("fraqueza", out var respFraqueza) && respFraqueza == "Sim, intensa")
         {
             diagnoses.Add(new Diagnosis
             {
@@ -362,7 +362,7 @@ public class ArmsQuiz : MonoBehaviour
             });
         }
 
-        if (responses.TryGetValue("inchaço", out var respInchaco) && respInchaco == "Sim, importante" &&
+        if (responses.TryGetValue("inchaço", out var respInchaco) && respInchaco == "Sim, intensa" &&
             responses.TryGetValue("vermelhidão", out var respVermelho) && respVermelho == "Sim" &&
             responses.TryGetValue("febre", out var respFebre) && respFebre != "Não")
         {
@@ -447,7 +447,7 @@ public class ArmsQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            resultText.text = "🔍DIAGNÓSTICOS IDENTIFICADOS:";
             int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
 
             for (int i = 0; i < maxDiagnosesToShow; i++)

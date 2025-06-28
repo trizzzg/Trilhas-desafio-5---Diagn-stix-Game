@@ -19,7 +19,6 @@ public class TransicaoTela : MonoBehaviour
 #endif
 
     private SpriteRenderer spriteRenderer;
-
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();

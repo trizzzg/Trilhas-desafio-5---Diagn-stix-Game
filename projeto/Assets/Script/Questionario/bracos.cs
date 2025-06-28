@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class ArmsQuiz : MonoBehaviour
@@ -17,6 +18,24 @@ public class ArmsQuiz : MonoBehaviour
     {
         public string condition;
         public string recommendation;
+    }
+
+    [Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
     }
 
     private Dictionary<string, string> responses = new Dictionary<string, string>();
@@ -270,6 +289,7 @@ public class ArmsQuiz : MonoBehaviour
         };
     }
 
+
     public void StartArmsQuiz()
     {
         options.SetActive(false);
@@ -325,13 +345,13 @@ public class ArmsQuiz : MonoBehaviour
         resultPanel.SetActive(true);
         EvaluateDiagnoses();
         DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
     {
         diagnoses.Clear();
 
-        // 1. Emergências (prioridade máxima)
         if (responses.TryGetValue("trauma", out var respTrauma) && respTrauma == "Sim, trauma grave" &&
             responses.TryGetValue("fraqueza", out var respFraqueza) && respFraqueza == "Sim, importante")
         {
@@ -341,7 +361,7 @@ public class ArmsQuiz : MonoBehaviour
                 recommendation = "Emergência ortopédica! Imobilize e procure atendimento IMEDIATO"
             });
         }
-        
+
         if (responses.TryGetValue("inchaço", out var respInchaco) && respInchaco == "Sim, importante" &&
             responses.TryGetValue("vermelhidão", out var respVermelho) && respVermelho == "Sim" &&
             responses.TryGetValue("febre", out var respFebre) && respFebre != "Não")
@@ -353,7 +373,6 @@ public class ArmsQuiz : MonoBehaviour
             });
         }
 
-        // 2. Problemas cervicais
         if (responses.TryGetValue("irradiacao", out var respIrradiacao) && respIrradiacao == "Sim" &&
             responses.TryGetValue("formigamento", out var respFormigamento) && respFormigamento != "Não")
         {
@@ -364,8 +383,7 @@ public class ArmsQuiz : MonoBehaviour
             });
         }
 
-        // 3. Tendinites/Bursites
-        if (responses.TryGetValue("localizacao", out var respLocalizacao) && 
+        if (responses.TryGetValue("localizacao", out var respLocalizacao) &&
             (respLocalizacao == "Ombro" || respLocalizacao == "Cotovelo") &&
             responses.TryGetValue("piora_movimento", out var respMovimento) && respMovimento != "Não" &&
             responses.TryGetValue("esforco_repetitivo", out var respRepetitivo) && respRepetitivo != "Não")
@@ -377,7 +395,6 @@ public class ArmsQuiz : MonoBehaviour
             });
         }
 
-        // 4. Síndrome do Túnel do Carpo
         if (responses.TryGetValue("localizacao", out respLocalizacao) && respLocalizacao == "Punho/Mão" &&
             responses.TryGetValue("formigamento", out respFormigamento) && respFormigamento != "Não" &&
             responses.TryGetValue("posicao_dor", out var respPosicao) && respPosicao == "Sim, à noite")
@@ -389,7 +406,6 @@ public class ArmsQuiz : MonoBehaviour
             });
         }
 
-        // 5. Epicondilite
         if (responses.TryGetValue("localizacao", out respLocalizacao) && respLocalizacao == "Cotovelo" &&
             responses.TryGetValue("esforco_repetitivo", out respRepetitivo) && respRepetitivo != "Não")
         {
@@ -400,7 +416,6 @@ public class ArmsQuiz : MonoBehaviour
             });
         }
 
-        // 6. Artrites
         if (responses.TryGetValue("historia_artrite", out var respArtrite) && respArtrite == "Sim" &&
             responses.TryGetValue("rigidez", out var respRigidez) && respRigidez != "Não" &&
             responses.TryGetValue("edema_dedos", out var respEdema) && respEdema == "Sim")
@@ -412,7 +427,6 @@ public class ArmsQuiz : MonoBehaviour
             });
         }
 
-        // 7. Distúrbios circulatórios
         if (responses.TryGetValue("alteracoes_pele", out var respPele) && respPele == "Sim" &&
             responses.TryGetValue("diabetes", out var respDiabetes) && respDiabetes == "Sim")
         {
@@ -426,7 +440,6 @@ public class ArmsQuiz : MonoBehaviour
 
     private void DisplayResults()
     {
-        // Limpa resultados anteriores
         foreach (Transform child in diagnosesContainer)
         {
             Destroy(child.gameObject);
@@ -434,8 +447,10 @@ public class ArmsQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "🔍 DIAGNÓSTICOS IDENTIFICADOS:";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -447,25 +462,45 @@ public class ArmsQuiz : MonoBehaviour
             resultText.text = "Nenhuma condição específica identificada";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 50)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
-        }
-        else if (totalScore >= 30)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação médica em até 1 semana";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Monitore sintomas e consulte se persistirem";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Mantenha hábitos saudáveis";
-        }
-
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/120";
+    }
+
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 50) return "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
+        if (totalScore >= 30) return "RISCO MODERADO/ALTO - Agende avaliação médica em até 1 semana";
+        if (totalScore >= 15) return "RISCO LEVE - Monitore sintomas e consulte se persistirem";
+        return "BAIXO RISCO - Mantenha hábitos saudáveis";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 50) return "MUITO ELEVADO";
+        if (totalScore >= 30) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  //adicionar UsuarioLogado.userId quando tiver o login
+                username = "João Silva" //adicionar UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_arms.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }

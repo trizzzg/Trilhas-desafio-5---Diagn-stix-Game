@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class LegsQuiz : MonoBehaviour
@@ -17,6 +18,24 @@ public class LegsQuiz : MonoBehaviour
     {
         public string condition;
         public string recommendation;
+    }
+
+    [Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
     }
 
     private Dictionary<string, string> responses = new Dictionary<string, string>();
@@ -308,8 +327,7 @@ public class LegsQuiz : MonoBehaviour
 
             UnityEngine.UI.Button button = optionButton.GetComponent<UnityEngine.UI.Button>();
             string keyCopy = option.Key;
-            Question questionCopy = currentQuestion;
-            button.onClick.AddListener(() => OnOptionSelected(keyCopy, questionCopy));
+            button.onClick.AddListener(() => OnOptionSelected(keyCopy, currentQuestion));
         }
     }
 
@@ -330,13 +348,14 @@ public class LegsQuiz : MonoBehaviour
         resultPanel.SetActive(true);
         EvaluateDiagnoses();
         DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
     {
         diagnoses.Clear();
 
-        // 1. Emergências (prioridade máxima)
+        // 1. Emergency conditions (priority)
         if (responses.TryGetValue("inchaço", out var respInchaco) && 
             (respInchaco == "Sim, muito inchaço" || respInchaco == "Sim, leve inchaço") &&
             responses.TryGetValue("localizacao", out var respLocalizacao) && respLocalizacao == "Panturrilha" &&
@@ -359,7 +378,7 @@ public class LegsQuiz : MonoBehaviour
             });
         }
 
-        // 2. Problemas vasculares
+        // 2. Vascular problems
         if (responses.TryGetValue("varizes", out var respVarizes) && respVarizes != "Não" &&
             responses.TryGetValue("perna_pesada", out var respPernaPesada) && respPernaPesada != "Não" &&
             responses.TryGetValue("edema", out var respEdema) && respEdema != "Não")
@@ -371,7 +390,7 @@ public class LegsQuiz : MonoBehaviour
             });
         }
 
-        // 3. Problemas articulares
+        // 3. Joint problems
         if (responses.TryGetValue("localizacao", out respLocalizacao) && respLocalizacao == "Joelho" &&
             responses.TryGetValue("inchaço", out respInchaco) && respInchaco != "Não" &&
             responses.TryGetValue("piora_movimento", out var respMovimento) && respMovimento != "Não")
@@ -383,7 +402,7 @@ public class LegsQuiz : MonoBehaviour
             });
         }
 
-        // 4. Neuropatias
+        // 4. Neuropathies
         if (responses.TryGetValue("formigamento", out var respFormigamento) && respFormigamento != "Não" &&
             responses.TryGetValue("localizacao", out respLocalizacao) && respLocalizacao == "Toda a perna")
         {
@@ -394,7 +413,7 @@ public class LegsQuiz : MonoBehaviour
             });
         }
 
-        // 5. Infecções
+        // 5. Infections
         if (responses.TryGetValue("febre", out var respFebre) && respFebre != "Não" &&
             responses.TryGetValue("vermelhidão", out var respVermelhidão) && respVermelhidão != "Não")
         {
@@ -405,7 +424,7 @@ public class LegsQuiz : MonoBehaviour
             });
         }
 
-        // 6. Problemas musculares
+        // 6. Muscle problems
         if (responses.TryGetValue("trauma", out var respTrauma) && respTrauma != "Não" &&
             responses.TryGetValue("piora_movimento", out respMovimento) && respMovimento != "Não")
         {
@@ -416,7 +435,7 @@ public class LegsQuiz : MonoBehaviour
             });
         }
 
-        // 7. Claudicação intermitente
+        // 7. Intermittent claudication
         if (responses.TryGetValue("dor_repouso", out var respDorRepouso) && respDorRepouso == "Sim, frequentemente" &&
             responses.TryGetValue("piora_movimento", out respMovimento) && respMovimento != "Não")
         {
@@ -427,7 +446,7 @@ public class LegsQuiz : MonoBehaviour
             });
         }
 
-        // 8. Fatores de risco para TVP
+        // 8. Risk factors for DVT
         if ((responses.TryGetValue("viagem_recente", out var respViagem) && respViagem != "Não") ||
             (responses.TryGetValue("imobilizacao", out var respImobilizacao) && respImobilizacao != "Não") ||
             (responses.TryGetValue("hormonios", out var respHormonios) && respHormonios == "Sim"))
@@ -442,7 +461,6 @@ public class LegsQuiz : MonoBehaviour
 
     private void DisplayResults()
     {
-        // Limpa resultados anteriores
         foreach (Transform child in diagnosesContainer)
         {
             Destroy(child.gameObject);
@@ -450,8 +468,10 @@ public class LegsQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "🔍 DIAGNÓSTICOS IDENTIFICADOS:";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -460,30 +480,48 @@ public class LegsQuiz : MonoBehaviour
         }
         else
         {
-            resultText.text = "Nenhuma condição específica identificada";
+            resultText.text = "🟢 Nenhuma condição específica identificada";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 60)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
-        }
-        else if (totalScore >= 35)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação médica em até 1 semana";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Monitore sintomas e consulte se persistirem";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Mantenha hábitos saudáveis";
-        }
-
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/120";
+    }
 
-        // Opcional: resumo das respostas pode ser adicionado aqui
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 60) return "🚨 RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
+        if (totalScore >= 35) return "⚠️ RISCO MODERADO/ALTO - Agende avaliação médica em até 1 semana";
+        if (totalScore >= 15) return "🔍 RISCO LEVE - Monitore sintomas e consulte se persistirem";
+        return "✅ BAIXO RISCO - Mantenha hábitos saudáveis";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 60) return "MUITO ELEVADO";
+        if (totalScore >= 35) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  // Substituir por UsuarioLogado.userId quando tiver o login
+                username = "João Silva" // Substituir por UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_pernas.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class EyeQuiz : MonoBehaviour
@@ -17,6 +18,24 @@ public class EyeQuiz : MonoBehaviour
     {
         public string condition;
         public string recommendation;
+    }
+
+    [System.Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [System.Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
     }
 
     private Dictionary<string, string> responses = new Dictionary<string, string>();
@@ -42,7 +61,6 @@ public class EyeQuiz : MonoBehaviour
     private void Start()
     {
         InitializeEyeQuestions();
-
     }
 
     private void InitializeEyeQuestions()
@@ -309,7 +327,9 @@ public class EyeQuiz : MonoBehaviour
             buttonText.text = $"{option.Key}) {option.Value.description}";
 
             UnityEngine.UI.Button button = optionButton.GetComponent<UnityEngine.UI.Button>();
-            button.onClick.AddListener(() => OnOptionSelected(option.Key, currentQuestion));
+            string keyCopy = option.Key;
+            Question questionCopy = currentQuestion;
+            button.onClick.AddListener(() => OnOptionSelected(keyCopy, questionCopy));
         }
     }
 
@@ -330,143 +350,121 @@ public class EyeQuiz : MonoBehaviour
         resultPanel.SetActive(true);     
         EvaluateDiagnoses();
         DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
     {
-        // 1. Emergências oculares (3 diagnósticos)
-        if (responses.ContainsKey("visao_alterada") && responses["visao_alterada"] == "Piorou abruptamente" &&
-            responses.ContainsKey("dor_profunda") && (responses["dor_profunda"] == "Sim, intensa" || responses["dor_profunda"] == "Sim, moderada"))
+        diagnoses.Clear();
+
+        // 1. Emergency conditions (3 diagnoses)
+        if (responses.TryGetValue("visao_alterada", out var respVisao) && respVisao == "Piorou abruptamente" &&
+            responses.TryGetValue("dor_profunda", out var respDor) && respDor != "Não")
         {
             diagnoses.Add(new Diagnosis
             {
-                condition = "GLAUCOMA AGUDO",
-                recommendation = "Emergência médica! Risco de perda visual permanente - procure atendimento IMEDIATO"
+                condition = "GLAUCOMA AGUDO OU UVEÍTE",
+                recommendation = "EMERGÊNCIA OFTALMOLÓGICA! Risco de perda visual permanente - procure atendimento IMEDIATO"
             });
         }
         
-        if ((responses.ContainsKey("trauma") && (responses["trauma"] == "Sim, com objeto pontiagudo" || responses["trauma"] == "Sim, com impacto")) ||
-            (responses.ContainsKey("quimicos") && responses["quimicos"] == "Sim"))
+        if (responses.TryGetValue("trauma", out var respTrauma) && respTrauma != "Não" ||
+            responses.TryGetValue("quimicos", out var respQuimicos) && respQuimicos == "Sim")
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "TRAUMA OU QUEIMADURA OCULAR",
-                recommendation = "Lave com água corrente e procure oftalmologista URGENTEMENTE"
+                recommendation = "Lave com água corrente por 15 minutos e procure oftalmologista URGENTEMENTE"
             });
         }
 
-        if (responses.ContainsKey("visao_alterada") && responses["visao_alterada"] == "Piorou abruptamente" &&
-            responses.ContainsKey("fotofobia") && responses["fotofobia"] == "Sim, não consigo abrir os olhos" &&
-            responses.ContainsKey("cefaleia") && responses["cefaleia"] == "Sim, com náuseas")
+        if (responses.TryGetValue("visao_alterada", out respVisao) && respVisao == "Piorou abruptamente" &&
+            responses.TryGetValue("halos_luminosos", out var respHalos) && respHalos != "Não" &&
+            responses.TryGetValue("cefaleia", out var respCefaleia) && respCefaleia != "Não")
         {
             diagnoses.Add(new Diagnosis
             {
-                condition = "UVELITE AGUDA",
-                recommendation = "Inflamação intraocular grave - tratamento urgente necessário"
+                condition = "CRISE DE GLAUCOMA AGUDO",
+                recommendation = "Redução da pressão intraocular urgente necessária"
             });
         }
 
-        // 2. Infecções/inflamações (3 diagnósticos)
-        if (responses.ContainsKey("secrecao") && responses["secrecao"] == "Sim, purulenta (amarela/esverdeada)" &&
-            responses.ContainsKey("inchaço_palpebras") && responses["inchaço_palpebras"] != "Não")
+        // 2. Infections/inflammations (3 diagnoses)
+        if (responses.TryGetValue("secrecao", out var respSecrecao) && respSecrecao == "Sim, purulenta (amarela/esverdeada)" &&
+            responses.TryGetValue("inchaço_palpebras", out var respInchaco) && respInchaco != "Não")
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "CONJUNTIVITE BACTERIANA",
-                recommendation = "Requer colírios antibióticos - evite automedicação"
+                recommendation = "Requer colírios antibióticos prescritos - evite automedicação"
             });
         }
 
-        if (responses.ContainsKey("tipo_sintoma") && responses["tipo_sintoma"] == "Coceira" &&
-            responses.ContainsKey("secrecao") && responses["secrecao"] == "Sim, aquosa/transparente")
+        if (responses.TryGetValue("tipo_sintoma", out var respSintoma) && respSintoma == "Coceira" &&
+            responses.TryGetValue("secrecao", out respSecrecao) && respSecrecao == "Sim, aquosa/transparente")
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "CONJUNTIVITE ALÉRGICA",
-                recommendation = "Anti-histamínicos oculares podem ajudar - evite coçar"
+                recommendation = "Anti-histamínicos oculares e compressas frias podem ajudar"
             });
         }
 
-        if (responses.ContainsKey("inchaço_palpebras") && responses["inchaço_palpebras"] == "Sim, com vermelhidão" &&
-            responses.ContainsKey("dor_profunda") && responses["dor_profunda"] != "Não")
+        if (responses.TryGetValue("inchaço_palpebras", out respInchaco) && respInchaco == "Sim, com vermelhidão" &&
+            responses.TryGetValue("dor_profunda", out respDor) && respDor != "Não")
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "BLEFARITE OU TERÇOL",
-                recommendation = "Compressas mornas e higiene palpebral"
+                recommendation = "Compressas mornas 3-4x/dia e higiene palpebral rigorosa"
             });
         }
 
-        // 3. Problemas de refração/fadiga (2 diagnósticos)
-        if (responses.ContainsKey("piora_telas") && responses["piora_telas"] != "Não" &&
-            responses.ContainsKey("olho_seco") && responses["olho_seco"] != "Não" &&
-            responses.ContainsKey("lentes_contato") && responses["lentes_contato"] != "Não")
+        // 3. Refractive issues/eye strain (2 diagnoses)
+        if (responses.TryGetValue("piora_telas", out var respTelas) && respTelas != "Não" &&
+            responses.TryGetValue("olho_seco", out var respSeco) && respSeco != "Não")
         {
             diagnoses.Add(new Diagnosis
             {
-                condition = "SÍNDROME DO OLHO SECO/FADIGA VISUAL",
-                recommendation = "Pausas regulares e lágrimas artificiais"
+                condition = "SÍNDROME DO OLHO SECO OU FADIGA VISUAL",
+                recommendation = "Pausas a cada 20 minutos (regra 20-20-20) e lágrimas artificiais"
             });
         }
 
-        if (responses.ContainsKey("visao_alterada") && responses["visao_alterada"] == "Piorou gradualmente" &&
-            responses.ContainsKey("halos_luminosos") && responses["halos_luminosos"] != "Não")
+        if (responses.TryGetValue("visao_alterada", out respVisao) && respVisao == "Piorou gradualmente" &&
+            responses.TryGetValue("halos_luminosos", out respHalos) && respHalos != "Não")
         {
             diagnoses.Add(new Diagnosis
             {
-                condition = "ERRO REFRATIVO (MIOPIA/ASTIGMATISMO)",
-                recommendation = "Avaliação oftalmológica para correção"
+                condition = "ERRO REFRATIVO (MIOPIA/ASTIGMATISMO/HIPERMETROPIA)",
+                recommendation = "Avaliação oftalmológica para correção com óculos ou lentes"
             });
         }
 
-        // 4. Condições sistêmicas (2 diagnósticos)
-        if (responses.ContainsKey("diabetes") && responses["diabetes"] == "Sim" &&
-            responses.ContainsKey("visao_alterada") && responses["visao_alterada"] != "Sem alterações")
+        // 4. Systemic conditions (2 diagnoses)
+        if (responses.TryGetValue("diabetes", out var respDiabetes) && respDiabetes == "Sim" &&
+            responses.TryGetValue("visao_alterada", out respVisao) && respVisao != "Sem alterações")
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "RETINOPATIA DIABÉTICA",
-                recommendation = "Controle glicêmico e avaliação do fundo de olho"
+                recommendation = "Controle glicêmico rigoroso e avaliação do fundo de olho anual"
             });
         }
 
-        if (responses.ContainsKey("pressao_alta") && responses["pressao_alta"] == "Sim" &&
-            responses.ContainsKey("tipo_sintoma") && responses["tipo_sintoma"] == "Visão embaçada")
+        if (responses.TryGetValue("pressao_alta", out var respPressao) && respPressao == "Sim" &&
+            responses.TryGetValue("tipo_sintoma", out respSintoma) && respSintoma == "Visão embaçada")
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "ALTERAÇÕES VASCULARES RETINIANAS",
-                recommendation = "Monitoramento da pressão e avaliação oftalmológica"
+                recommendation = "Controle da pressão arterial e avaliação oftalmológica especializada"
             });
         }
     }
 
     private void DisplayResults()
-{
-    Debug.Log("=== DisplayResults chamado ===");
-    Debug.Log("diagnosesContainer: " + diagnosesContainer);
-    Debug.Log("diagnosisPrefab: " + diagnosisPrefab);
-    Debug.Log("resultText: " + resultText);
-    Debug.Log("scoreText: " + scoreText);
-    Debug.Log("riskLevelText: " + riskLevelText);
-
-    if (diagnosesContainer == null)
     {
-        Debug.LogError("❌ diagnosesContainer NÃO FOI ATRIBUÍDO NO INSPECTOR");
-        return;
-    }
-
-    if (diagnosisPrefab == null)
-    {
-        Debug.LogError("❌ diagnosisPrefab NÃO FOI ATRIBUÍDO NO INSPECTOR");
-        return;
-    }
-
-    if (resultText == null || scoreText == null || riskLevelText == null)
-    {
-        Debug.LogError("❌ Um dos TextMeshProUGUI (resultText, scoreText ou riskLevelText) está NULL");
-        return;
-    }
         // Clear previous diagnoses
         foreach (Transform child in diagnosesContainer)
         {
@@ -475,8 +473,10 @@ public class EyeQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "🔍 DIAGNÓSTICOS IDENTIFICADOS (10 possibilidades):";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -485,28 +485,49 @@ public class EyeQuiz : MonoBehaviour
         }
         else
         {
-            resultText.text = "Nenhuma condição específica identificada";
+            resultText.text = "🟢 Nenhuma condição específica identificada";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 50)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda oftalmológica IMEDIATA";
-        }
-        else if (totalScore >= 30)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação em até 24h";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Monitore sintomas e consulte se persistirem";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Mantenha hábitos de saúde ocular";
-        }
-
+        // Risk classification
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/120";
+    }
+
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 50) return "🚨 RISCO MUITO ELEVADO - Procure ajuda oftalmológica IMEDIATA";
+        if (totalScore >= 30) return "⚠️ RISCO MODERADO/ALTO - Agende avaliação em até 24h";
+        if (totalScore >= 15) return "🔍 RISCO LEVE - Monitore sintomas e consulte se persistirem";
+        return "✅ BAIXO RISCO - Mantenha hábitos de saúde ocular";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 50) return "MUITO ELEVADO";
+        if (totalScore >= 30) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  // Substituir por UsuarioLogado.userId quando tiver o login
+                username = "João Silva" // Substituir por UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_eye.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }

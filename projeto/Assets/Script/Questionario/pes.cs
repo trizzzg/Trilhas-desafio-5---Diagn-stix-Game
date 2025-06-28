@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class FeetQuiz : MonoBehaviour
@@ -19,11 +20,28 @@ public class FeetQuiz : MonoBehaviour
         public string recommendation;
     }
 
+    [Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
+    }
+
     private Dictionary<string, string> responses = new Dictionary<string, string>();
     private int totalScore = 0;
     private List<Diagnosis> diagnoses = new List<Diagnosis>();
 
-    // UI References (assign in Inspector)
     public GameObject quizPanel;
     public TMPro.TextMeshProUGUI questionText;
     public GameObject optionButtonPrefab;
@@ -304,8 +322,7 @@ public class FeetQuiz : MonoBehaviour
 
             UnityEngine.UI.Button button = optionButton.GetComponent<UnityEngine.UI.Button>();
             string keyCopy = option.Key;
-            Question questionCopy = currentQuestion;
-            button.onClick.AddListener(() => OnOptionSelected(keyCopy, questionCopy));
+            button.onClick.AddListener(() => OnOptionSelected(keyCopy, currentQuestion));
         }
     }
 
@@ -326,13 +343,14 @@ public class FeetQuiz : MonoBehaviour
         resultPanel.SetActive(true);
         EvaluateDiagnoses();
         DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
     {
         diagnoses.Clear();
 
-        // 1. Emergências (3 diagnósticos)
+        // 1. Emergency conditions (priority)
         if ((responses.TryGetValue("diabetes", out var respDiabetes) && 
              (respDiabetes == "Sim, tipo 1 ou 2" || respDiabetes == "Pré-diabetes")) &&
             responses.TryGetValue("feridas", out var respFeridas) && respFeridas == "Sim")
@@ -365,7 +383,7 @@ public class FeetQuiz : MonoBehaviour
             });
         }
 
-        // 2. Problemas ortopédicos (4 diagnósticos)
+        // 2. Orthopedic problems
         if (responses.TryGetValue("localizacao", out var respLocalizacao) && respLocalizacao == "Calcanhar" &&
             responses.TryGetValue("piora_caminhar", out var respCaminhar) && respCaminhar != "Não")
         {
@@ -406,7 +424,7 @@ public class FeetQuiz : MonoBehaviour
             });
         }
 
-        // 3. Problemas neurológicos/circulatórios (3 diagnósticos)
+        // 3. Neurological/circulatory problems
         if (responses.TryGetValue("formigamento", out respFormigamento) && respFormigamento != "Não" &&
             responses.TryGetValue("calçados", out respCalcados) && respCalcados != "Não" &&
             (responses.TryGetValue("localizacao", out respLocalizacao) && 
@@ -442,7 +460,6 @@ public class FeetQuiz : MonoBehaviour
 
     private void DisplayResults()
     {
-        // Limpa resultados anteriores
         foreach (Transform child in diagnosesContainer)
         {
             Destroy(child.gameObject);
@@ -450,8 +467,10 @@ public class FeetQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "🔍 DIAGNÓSTICOS IDENTIFICADOS (10 possibilidades):";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -460,28 +479,48 @@ public class FeetQuiz : MonoBehaviour
         }
         else
         {
-            resultText.text = "Nenhuma condição específica identificada";
+            resultText.text = "🟢 Nenhuma condição específica identificada";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 50)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
-        }
-        else if (totalScore >= 30)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação médica em até 48h";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Monitore sintomas e consulte se persistirem";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Mantenha hábitos saudáveis";
-        }
-
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/120";
+    }
+
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 50) return "🚨 RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
+        if (totalScore >= 30) return "⚠️ RISCO MODERADO/ALTO - Agende avaliação médica em até 48h";
+        if (totalScore >= 15) return "🔍 RISCO LEVE - Monitore sintomas e consulte se persistirem";
+        return "✅ BAIXO RISCO - Mantenha hábitos saudáveis";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 50) return "MUITO ELEVADO";
+        if (totalScore >= 30) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  // Substituir por UsuarioLogado.userId quando tiver o login
+                username = "João Silva" // Substituir por UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_pes.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }

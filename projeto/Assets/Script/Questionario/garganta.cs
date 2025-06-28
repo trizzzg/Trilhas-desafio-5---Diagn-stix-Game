@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class ThroatQuiz : MonoBehaviour
@@ -19,6 +20,24 @@ public class ThroatQuiz : MonoBehaviour
         public string recommendation;
     }
 
+    [Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
+    }
+
     private Dictionary<string, string> responses = new Dictionary<string, string>();
     private int totalScore = 0;
     private List<Diagnosis> diagnoses = new List<Diagnosis>();
@@ -36,14 +55,12 @@ public class ThroatQuiz : MonoBehaviour
     public GameObject resultPanel;
     public GameObject options;
 
-
     private List<Question> throatQuestions = new List<Question>();
     private int currentQuestionIndex = 0;
 
     private void Start()
     {
         InitializeThroatQuestions();
-
     }
 
     private void InitializeThroatQuestions()
@@ -308,7 +325,6 @@ public class ThroatQuiz : MonoBehaviour
             buttonText.text = $"{option.Key}) {option.Value.description}";
 
             UnityEngine.UI.Button button = optionButton.GetComponent<UnityEngine.UI.Button>();
-            // Need to capture option.Key and currentQuestion by local variables to avoid closure issues
             string keyCopy = option.Key;
             Question questionCopy = currentQuestion;
             button.onClick.AddListener(() => OnOptionSelected(keyCopy, questionCopy));
@@ -328,10 +344,11 @@ public class ThroatQuiz : MonoBehaviour
 
     private void FinishQuiz()
     {
-    quizPanel.SetActive(false);      
-    resultPanel.SetActive(true);     
-    EvaluateDiagnoses();
-    DisplayResults();
+        quizPanel.SetActive(false);
+        resultPanel.SetActive(true);
+        EvaluateDiagnoses();
+        DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
@@ -455,11 +472,35 @@ public class ThroatQuiz : MonoBehaviour
                 recommendation = "Emergência médica - doença grave e contagiosa"
             });
         }
+
+        // 9. Faringite viral
+        if (responses.TryGetValue("congestao", out respCongestao) && respCongestao != "Não" &&
+            responses.TryGetValue("febre", out respFebre) && respFebre != "Não tenho febre" &&
+            responses.TryGetValue("placas_pus", out respPlacas) && respPlacas == "Não")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "FARINGITE VIRAL",
+                recommendation = "Tratamento sintomático - geralmente melhora em 3-5 dias"
+            });
+        }
+
+        // 10. Câncer de garganta (para sintomas persistentes)
+        if (responses.TryGetValue("duracao", out respDuracao) && respDuracao == "Mais de 1 semana" &&
+            responses.TryGetValue("fumante", out var respFumante) && respFumante != "Não" &&
+            responses.TryGetValue("dificuldade_engolir", out respEngolir) && respEngolir != "Não" &&
+            responses.TryGetValue("rouquidao", out respRouquidao) && respRouquidao != "Não")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "RISCO DE CÂNCER DE GARGANTA",
+                recommendation = "Avaliação otorrinolaringológica urgente"
+            });
+        }
     }
 
     private void DisplayResults()
     {
-        // Limpa resultados anteriores
         foreach (Transform child in diagnosesContainer)
         {
             Destroy(child.gameObject);
@@ -467,8 +508,10 @@ public class ThroatQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "🔍 DIAGNÓSTICOS IDENTIFICADOS:";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -480,27 +523,45 @@ public class ThroatQuiz : MonoBehaviour
             resultText.text = "🟢 Nenhuma condição específica identificada";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 50)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
-        }
-        else if (totalScore >= 30)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação médica em até 24h";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Monitore sintomas e consulte se persistirem";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Cuide da saúde e mantenha hábitos adequados";
-        }
-
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/100+";
+    }
 
-        // Opcional: resumo das respostas pode ser adicionado aqui
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 50) return "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
+        if (totalScore >= 30) return "RISCO MODERADO/ALTO - Agende avaliação médica em até 24h";
+        if (totalScore >= 15) return "RISCO LEVE - Monitore sintomas e consulte se persistirem";
+        return "BAIXO RISCO - Cuide da saúde e mantenha hábitos adequados";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 50) return "MUITO ELEVADO";
+        if (totalScore >= 30) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  // Substituir por UsuarioLogado.userId quando tiver o login
+                username = "João Silva" // Substituir por UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_throat.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }

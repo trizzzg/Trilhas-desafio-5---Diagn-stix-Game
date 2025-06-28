@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class BackQuiz : MonoBehaviour
@@ -17,6 +18,24 @@ public class BackQuiz : MonoBehaviour
     {
         public string condition;
         public string recommendation;
+    }
+
+    [Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
     }
 
     private Dictionary<string, string> responses = new Dictionary<string, string>();
@@ -330,6 +349,7 @@ public class BackQuiz : MonoBehaviour
         resultPanel.SetActive(true);
         EvaluateDiagnoses();
         DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
@@ -357,20 +377,51 @@ public class BackQuiz : MonoBehaviour
             });
         }
 
-        // 2. Problemas lombares
-        if (responses.TryGetValue("localizacao", out var respLocal) && respLocal == "Região lombar (parte baixa)" &&
-            responses.TryGetValue("irradiacao", out var respIrradiacao) && respIrradiacao == "Sim, para pernas/glúteos")
+        if (responses.TryGetValue("trauma", out var respTrauma) && respTrauma == "Sim, trauma direto" &&
+            responses.TryGetValue("intensidade", out var respIntensidade) && 
+            (respIntensidade == "Forte (incapacitante)" || respIntensidade == "A pior dor que já senti"))
         {
             diagnoses.Add(new Diagnosis
             {
-                condition = "HÉRNIA DE DISCO LOMBAR",
+                condition = "POSSÍVEL FRATURA VERTEBRAL",
+                recommendation = "Necessita avaliação ortopédica urgente"
+            });
+        }
+
+        // 2. Problemas lombares
+        if (responses.TryGetValue("localizacao", out var respLocal) && respLocal == "Região lombar (parte baixa)" &&
+            responses.TryGetValue("irradiacao", out var respIrradiacao) && respIrradiacao == "Sim, para pernas/glúteos" &&
+            responses.TryGetValue("formigamento", out var respFormigamento) && respFormigamento != "Não")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "HÉRNIA DE DISCO LOMBAR COM COMPRESSÃO NERVOSA",
                 recommendation = "Avaliação com ortopedista/neurocirurgião"
+            });
+        }
+        else if (responses.TryGetValue("localizacao", out respLocal) && respLocal == "Região lombar (parte baixa)" &&
+                 responses.TryGetValue("irradiacao", out respIrradiacao) && respIrradiacao == "Sim, para pernas/glúteos")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "HÉRNIA DE DISCO LOMBAR OU CIÁTICA",
+                recommendation = "Avaliação médica e possibilidade de fisioterapia"
             });
         }
 
         // 3. Problemas cervicais
         if (responses.TryGetValue("localizacao", out respLocal) && respLocal == "Cervical (pescoço)" &&
-            responses.TryGetValue("formigamento", out var respFormigamento) && respFormigamento != "Não")
+            responses.TryGetValue("formigamento", out respFormigamento) && respFormigamento != "Não" &&
+            responses.TryGetValue("irradiacao", out respIrradiacao) && respIrradiacao == "Sim, para braços/ombros")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "HÉRNIA DE DISCO CERVICAL",
+                recommendation = "Avaliação com especialista em coluna"
+            });
+        }
+        else if (responses.TryGetValue("localizacao", out respLocal) && respLocal == "Cervical (pescoço)" &&
+                 responses.TryGetValue("formigamento", out respFormigamento) && respFormigamento != "Não")
         {
             diagnoses.Add(new Diagnosis
             {
@@ -381,54 +432,103 @@ public class BackQuiz : MonoBehaviour
 
         // 4. Artrites/Espondilites
         if (responses.TryGetValue("rigidez_matinal", out var respRigidez) && respRigidez == "Sim, dura mais de 1 hora" &&
-            responses.TryGetValue("historia_artrite", out var respArtrite) && respArtrite == "Sim")
+            responses.TryGetValue("historia_artrite", out var respArtrite) && respArtrite == "Sim" &&
+            responses.TryGetValue("melhora_repouso", out var respRepouso) && respRepouso == "Não melhora")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "ESPONDILITE ANQUILOSANTE",
+                recommendation = "Reumatologista pode ajudar"
+            });
+        }
+        else if (responses.TryGetValue("rigidez_matinal", out respRigidez) && respRigidez == "Sim, dura mais de 1 hora" &&
+                 responses.TryGetValue("historia_artrite", out respArtrite) && respArtrite == "Sim")
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "POSSÍVEL ESPONDILITE ANQUILOSANTE",
-                recommendation = "Reumatologista pode ajudar"
+                recommendation = "Avaliação reumatológica recomendada"
             });
         }
 
         // 5. Osteoporose
         if (responses.TryGetValue("osteoporose", out var respOsteoporose) && respOsteoporose != "Não" &&
             responses.TryGetValue("idade", out var respIdade) && respIdade == "Mais de 50 anos" &&
-            responses.TryGetValue("intensidade", out var respIntensidade) &&
+            responses.TryGetValue("intensidade", out respIntensidade) &&
             (respIntensidade == "Forte (incapacitante)" || respIntensidade == "A pior dor que já senti"))
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "RISCO DE FRATURA POR OSTEOPOROSE",
-                recommendation = "Avaliação de densitometria óssea"
+                recommendation = "Avaliação de densitometria óssea e tratamento"
             });
         }
 
         // 6. Lesão muscular
-        if (responses.TryGetValue("trauma", out var respTrauma) && respTrauma != "Não" &&
-            responses.TryGetValue("piora_movimento", out var respMovimento) && respMovimento != "Não")
+        if (responses.TryGetValue("trauma", out respTrauma) && respTrauma != "Não" &&
+            responses.TryGetValue("piora_movimento", out var respMovimento) && respMovimento != "Não" &&
+            responses.TryGetValue("melhora_repouso", out respRepouso) && respRepouso != "Não melhora")
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "LESÃO MUSCULAR OU DISTENSÃO",
-                recommendation = "Repouso e fisioterapia podem ajudar"
+                recommendation = "Repouso, gelo e fisioterapia podem ajudar"
             });
         }
 
         // 7. Problemas posturais
         if (responses.TryGetValue("postura", out var respPostura) && respPostura != "Não" &&
-            responses.TryGetValue("melhora_repouso", out var respRepouso) && respRepouso != "Não melhora")
+            responses.TryGetValue("melhora_repouso", out respRepouso) && respRepouso != "Não melhora" &&
+            responses.TryGetValue("intensidade", out respIntensidade) && 
+            (respIntensidade == "Leve (não interfere nas atividades)" || respIntensidade == "Moderada (atrapalha atividades)"))
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "DOR POSTURAL",
-                recommendation = "Melhore sua ergonomia e faça alongamentos"
+                recommendation = "Melhore sua ergonomia e faça alongamentos regularmente"
+            });
+        }
+
+        // 8. Dor crônica
+        if (responses.TryGetValue("duracao", out var respDuracao) && respDuracao == "Mais de 1 mês" &&
+            responses.TryGetValue("medicamentos", out var respMedicamentos) && respMedicamentos == "Sim, frequentemente" &&
+            responses.TryGetValue("trajetoria_dor", out var respTrajetoria) && respTrajetoria == "Manteve-se estável")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "DOR CRÔNICA NAS COSTAS",
+                recommendation = "Avaliação multidisciplinar (médico, fisioterapeuta, psicólogo)"
+            });
+        }
+
+        // 9. Estenose espinhal
+        if (responses.TryGetValue("idade", out respIdade) && respIdade == "Mais de 50 anos" &&
+            responses.TryGetValue("dormencia_pernas", out var respDormencia) && respDormencia != "Não" &&
+            responses.TryGetValue("piora_movimento", out respMovimento) && respMovimento != "Não" &&
+            responses.TryGetValue("melhora_repouso", out respRepouso) && respRepouso != "Não melhora")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "POSSÍVEL ESTENOSE ESPINHAL",
+                recommendation = "Avaliação com especialista em coluna"
+            });
+        }
+
+        // 10. Escoliose
+        if (responses.TryGetValue("localizacao", out respLocal) && respLocal == "Região dorsal (meio das costas)" &&
+            responses.TryGetValue("duracao", out respDuracao) && respDuracao == "Mais de 1 mês" &&
+            responses.TryGetValue("idade", out respIdade) && respIdade == "Menos de 30 anos")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "POSSÍVEL ESCOLIOSE",
+                recommendation = "Avaliação postural e radiografias podem ser necessárias"
             });
         }
     }
 
     private void DisplayResults()
     {
-        // Limpa resultados anteriores
         foreach (Transform child in diagnosesContainer)
         {
             Destroy(child.gameObject);
@@ -436,8 +536,10 @@ public class BackQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "🔍 DIAGNÓSTICOS IDENTIFICADOS:";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -449,27 +551,45 @@ public class BackQuiz : MonoBehaviour
             resultText.text = "Nenhuma condição específica identificada";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 60)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
-        }
-        else if (totalScore >= 35)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação médica em até 1 semana";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Monitore sintomas e consulte se persistirem";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Mantenha hábitos saudáveis";
-        }
-
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/120";
+    }
 
-        // Opcional: resumo das respostas pode ser adicionado aqui
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 60) return "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
+        if (totalScore >= 35) return "RISCO MODERADO/ALTO - Agende avaliação médica em até 1 semana";
+        if (totalScore >= 15) return "RISCO LEVE - Monitore sintomas e consulte se persistirem";
+        return "BAIXO RISCO - Mantenha hábitos saudáveis";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 60) return "MUITO ELEVADO";
+        if (totalScore >= 35) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  // Substituir por UsuarioLogado.userId quando tiver o login
+                username = "João Silva" // Substituir por UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_back.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }

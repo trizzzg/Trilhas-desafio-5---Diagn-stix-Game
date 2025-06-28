@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class EarsQuiz : MonoBehaviour
@@ -17,6 +18,24 @@ public class EarsQuiz : MonoBehaviour
     {
         public string condition;
         public string recommendation;
+    }
+
+    [Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
     }
 
     private Dictionary<string, string> responses = new Dictionary<string, string>();
@@ -327,13 +346,14 @@ public class EarsQuiz : MonoBehaviour
         resultPanel.SetActive(true);
         EvaluateDiagnoses();
         DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
     {
         diagnoses.Clear();
 
-        // 1. Emergências (3 diagnósticos)
+        // 1. Emergency conditions (3 diagnoses)
         if ((responses.TryGetValue("perda_auditiva", out var respPerda) && respPerda == "Súbita e intensa") ||
             (responses.TryGetValue("tipo_sintoma", out var respTipo) && respTipo == "Zumbido constante" &&
              responses.TryGetValue("perda_auditiva", out respPerda) && respPerda != "Sem perda"))
@@ -361,11 +381,11 @@ public class EarsQuiz : MonoBehaviour
             diagnoses.Add(new Diagnosis
             {
                 condition = "LABIRINTITE GRAVE OU NEURITE VESTIBULAR",
-                recommendation = "Repouso e avaliação otoneurológica"
+                recommendation = "Repouso e avaliação otoneurológica urgente"
             });
         }
 
-        // 2. Infecções (3 diagnósticos)
+        // 2. Infections (3 diagnoses)
         if (responses.TryGetValue("febre", out var respFebre) && respFebre != "Não" &&
             responses.TryGetValue("piora_toque", out var respPiora) && respPiora != "Não" &&
             responses.TryGetValue("intensidade", out var respIntensidade) && 
@@ -385,7 +405,7 @@ public class EarsQuiz : MonoBehaviour
             diagnoses.Add(new Diagnosis
             {
                 condition = "OTITE EXTERNA (OUVIDO DE NADADOR)",
-                recommendation = "Evite água e use calor local"
+                recommendation = "Evite água e use calor local - pode precisar de antibióticos tópicos"
             });
         }
 
@@ -395,11 +415,11 @@ public class EarsQuiz : MonoBehaviour
             diagnoses.Add(new Diagnosis
             {
                 condition = "OTITE MÉDIA CRÔNICA SUPURATIVA",
-                recommendation = "Avaliação otorrinolaringológica necessária"
+                recommendation = "Avaliação otorrinolaringológica e possível tratamento cirúrgico"
             });
         }
 
-        // 3. Problemas mecânicos (2 diagnósticos)
+        // 3. Mechanical problems (2 diagnoses)
         if (responses.TryGetValue("uso_cotonete", out var respCotonete) && respCotonete != "Não" &&
             responses.TryGetValue("tipo_sintoma", out respTipo) && 
             (respTipo == "Coceira" || respTipo == "Sensação de ouvido tampado"))
@@ -407,7 +427,7 @@ public class EarsQuiz : MonoBehaviour
             diagnoses.Add(new Diagnosis
             {
                 condition = "IMPACTO DE CERA OU LESÃO POR COTONETE",
-                recommendation = "Não tente remover - procure limpeza profissional"
+                recommendation = "Não tente remover - procure limpeza profissional com otorrinolaringologista"
             });
         }
 
@@ -417,18 +437,18 @@ public class EarsQuiz : MonoBehaviour
             diagnoses.Add(new Diagnosis
             {
                 condition = "BAROTRAUMA",
-                recommendation = "Descongestionantes podem ajudar - evite novos mergulhos/voos"
+                recommendation = "Descongestionantes nasais podem ajudar - evite novos mergulhos/voos até melhora"
             });
         }
 
-        // 4. Condições neurológicas/crônicas (2 diagnósticos)
+        // 4. Neurological/chronic conditions (2 diagnoses)
         if (responses.TryGetValue("zumbido_caracteristica", out var respZumbido) && respZumbido == "Sim" &&
             responses.TryGetValue("pressao_alta", out var respPressao) && respPressao == "Sim")
         {
             diagnoses.Add(new Diagnosis
             {
                 condition = "ZUMBIDO PULSÁTIL (POSSÍVEL CAUSA VASCULAR)",
-                recommendation = "Avaliação cardiológica e otológica"
+                recommendation = "Avaliação cardiológica e otológica - controle rigoroso da pressão arterial"
             });
         }
 
@@ -438,14 +458,35 @@ public class EarsQuiz : MonoBehaviour
             diagnoses.Add(new Diagnosis
             {
                 condition = "PERDA AUDITIVA INDUZIDA POR RUÍDO",
-                recommendation = "Proteção auditiva e avaliação audiológica"
+                recommendation = "Proteção auditiva obrigatória e avaliação audiológica completa"
+            });
+        }
+
+        // 5. TMJ disorder
+        if (responses.TryGetValue("dor_mandibular", out var respMandibula) && respMandibula == "Sim" &&
+            responses.TryGetValue("tipo_sintoma", out respTipo) && respTipo == "Dor")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "DISFUNÇÃO DA ARTICULAÇÃO TEMPOROMANDIBULAR (ATM)",
+                recommendation = "Avaliação com dentista especializado em ATM"
+            });
+        }
+
+        // 6. Ototoxicity
+        if (responses.TryGetValue("uso_medicamentos", out var respMedicamentos) && respMedicamentos != "Não" &&
+            responses.TryGetValue("perda_auditiva", out respPerda) && respPerda != "Sem perda")
+        {
+            diagnoses.Add(new Diagnosis
+            {
+                condition = "OTOTOXICIDADE MEDICAMENTOSA",
+                recommendation = "Interrompa medicação se possível e consulte médico prescritor"
             });
         }
     }
 
     private void DisplayResults()
     {
-        // Limpa resultados anteriores
         foreach (Transform child in diagnosesContainer)
         {
             Destroy(child.gameObject);
@@ -453,8 +494,10 @@ public class EarsQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "🔍 DIAGNÓSTICOS IDENTIFICADOS (10 possibilidades):";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -463,28 +506,48 @@ public class EarsQuiz : MonoBehaviour
         }
         else
         {
-            resultText.text = "Nenhuma condição específica identificada";
+            resultText.text = "🟢 Nenhuma condição específica identificada";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 50)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda médica IMEDIATA";
-        }
-        else if (totalScore >= 30)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação em até 24h";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Monitore sintomas e consulte se persistirem";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Mantenha cuidados auditivos";
-        }
-
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/120";
+    }
+
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 50) return "🚨 RISCO MUITO ELEVADO - Procure ajuda médica IMEDIATA";
+        if (totalScore >= 30) return "⚠️ RISCO MODERADO/ALTO - Agende avaliação em até 24h";
+        if (totalScore >= 15) return "🔍 RISCO LEVE - Monitore sintomas e consulte se persistirem";
+        return "✅ BAIXO RISCO - Mantenha cuidados auditivos";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 50) return "MUITO ELEVADO";
+        if (totalScore >= 30) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  // Substituir por UsuarioLogado.userId quando tiver o login
+                username = "João Silva" // Substituir por UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_ears.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }

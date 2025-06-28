@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class PsychologicalQuiz : MonoBehaviour
@@ -17,6 +18,24 @@ public class PsychologicalQuiz : MonoBehaviour
     {
         public string condition;
         public string recommendation;
+    }
+
+    [Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
     }
 
     private Dictionary<string, string> responses = new Dictionary<string, string>();
@@ -310,8 +329,7 @@ public class PsychologicalQuiz : MonoBehaviour
 
             UnityEngine.UI.Button button = optionButton.GetComponent<UnityEngine.UI.Button>();
             string keyCopy = option.Key;
-            Question questionCopy = currentQuestion;
-            button.onClick.AddListener(() => OnOptionSelected(keyCopy, questionCopy));
+            button.onClick.AddListener(() => OnOptionSelected(keyCopy, currentQuestion));
         }
     }
 
@@ -332,13 +350,14 @@ public class PsychologicalQuiz : MonoBehaviour
         resultPanel.SetActive(true);
         EvaluateDiagnoses();
         DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
     {
         diagnoses.Clear();
 
-        // 1. Emergências (prioridade máxima)
+        // 1. Emergency conditions (priority)
         if (responses.TryGetValue("suicidio", out var respSuicidio) && 
             (respSuicidio == "Sim, com planejamento" || respSuicidio == "Sim, sem planejamento"))
         {
@@ -358,7 +377,7 @@ public class PsychologicalQuiz : MonoBehaviour
             });
         }
 
-        // 2. Transtornos de humor
+        // 2. Mood disorders
         if (responses.TryGetValue("sintoma_principal", out respSintoma) && respSintoma == "Tristeza/apatia" &&
             responses.TryGetValue("duracao", out var respDuracao) && respDuracao == "Mais de 1 mês")
         {
@@ -390,7 +409,7 @@ public class PsychologicalQuiz : MonoBehaviour
             });
         }
 
-        // 3. Transtornos de ansiedade
+        // 3. Anxiety disorders
         if (responses.TryGetValue("medo_excessivo", out var respMedo) && respMedo == "Sim")
         {
             if (responses.TryGetValue("sintomas_fisicos", out var respSintomasFisicos) && respSintomasFisicos == "Palpitações/tremores")
@@ -422,7 +441,7 @@ public class PsychologicalQuiz : MonoBehaviour
             });
         }
 
-        // 4. Transtorno Obsessivo-Compulsivo
+        // 4. OCD
         if ((responses.TryGetValue("compulsao", out var respCompulsao) && 
              (respCompulsao == "Sim, frequentemente" || respCompulsao == "Às vezes")) &&
             (responses.TryGetValue("sintoma_principal", out respSintoma) && 
@@ -435,7 +454,7 @@ public class PsychologicalQuiz : MonoBehaviour
             });
         }
 
-        // 5. Transtornos alimentares
+        // 5. Eating disorders
         if (responses.TryGetValue("imagem_corporal", out var respImagemCorporal) && respImagemCorporal == "Ódio intenso/medo de engordar" &&
             responses.TryGetValue("sintoma_principal", out respSintoma) && respSintoma != "Alterações no apetite")
         {
@@ -446,7 +465,7 @@ public class PsychologicalQuiz : MonoBehaviour
             });
         }
 
-        // 6. TDAH (Adulto)
+        // 6. ADHD (Adult)
         if (responses.TryGetValue("infancia", out var respInfancia) && respInfancia == "Dificuldade de atenção/hiperatividade" &&
             responses.TryGetValue("funcionamento", out var respFuncionamento) && respFuncionamento != "Normal")
         {
@@ -457,7 +476,7 @@ public class PsychologicalQuiz : MonoBehaviour
             });
         }
 
-        // 7. Autismo leve
+        // 7. Mild Autism
         if (responses.TryGetValue("infancia", out respInfancia) && respInfancia == "Dificuldade em interações sociais" &&
             responses.TryGetValue("rotinas", out var respRotinas) && 
             (respRotinas == "Desconforto moderado" || respRotinas == "Crises de ansiedade"))
@@ -491,7 +510,7 @@ public class PsychologicalQuiz : MonoBehaviour
             });
         }
 
-        // 10. TEPT
+        // 10. PTSD
         if (responses.TryGetValue("evento_estressante", out var respEvento) && respEvento == "Sim, grave (perda, trauma)" &&
             responses.TryGetValue("pensamentos_negativos", out var respPensamentos) && 
             (respPensamentos == "Diariamente" || respPensamentos == "Algumas vezes por semana"))
@@ -506,7 +525,6 @@ public class PsychologicalQuiz : MonoBehaviour
 
     private void DisplayResults()
     {
-        // Limpa resultados anteriores
         foreach (Transform child in diagnosesContainer)
         {
             Destroy(child.gameObject);
@@ -514,8 +532,10 @@ public class PsychologicalQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "🔍 DIAGNÓSTICOS IDENTIFICADOS:";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -524,28 +544,48 @@ public class PsychologicalQuiz : MonoBehaviour
         }
         else
         {
-            resultText.text = "Nenhum transtorno específico identificado";
+            resultText.text = "🟢 Nenhum transtorno específico identificado";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 40)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
-        }
-        else if (totalScore >= 25)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação em até 1 semana";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Pratique autocuidado e monitore sintomas";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Mantenha hábitos saudáveis";
-        }
-
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/100";
+    }
+
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 40) return "🚨 RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
+        if (totalScore >= 25) return "⚠️ RISCO MODERADO/ALTO - Agende avaliação em até 1 semana";
+        if (totalScore >= 15) return "🔍 RISCO LEVE - Pratique autocuidado e monitore sintomas";
+        return "✅ BAIXO RISCO - Mantenha hábitos saudáveis";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 40) return "MUITO ELEVADO";
+        if (totalScore >= 25) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  // Substituir por UsuarioLogado.userId quando tiver o login
+                username = "João Silva" // Substituir por UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_psicologico.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }

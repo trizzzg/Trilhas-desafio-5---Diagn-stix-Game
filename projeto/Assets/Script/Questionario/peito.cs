@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class ChestQuiz : MonoBehaviour
@@ -19,10 +20,29 @@ public class ChestQuiz : MonoBehaviour
         public string recommendation;
     }
 
+    [Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
+    }
+
     private Dictionary<string, string> responses = new Dictionary<string, string>();
     private int totalScore = 0;
     private List<Diagnosis> diagnoses = new List<Diagnosis>();
 
+    // UI References (assign in Inspector)
     public GameObject quizPanel;
     public TMPro.TextMeshProUGUI questionText;
     public GameObject optionButtonPrefab;
@@ -307,8 +327,7 @@ public class ChestQuiz : MonoBehaviour
 
             UnityEngine.UI.Button button = optionButton.GetComponent<UnityEngine.UI.Button>();
             string keyCopy = option.Key;
-            Question questionCopy = currentQuestion;
-            button.onClick.AddListener(() => OnOptionSelected(keyCopy, questionCopy));
+            button.onClick.AddListener(() => OnOptionSelected(keyCopy, currentQuestion));
         }
     }
 
@@ -329,13 +348,14 @@ public class ChestQuiz : MonoBehaviour
         resultPanel.SetActive(true);
         EvaluateDiagnoses();
         DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
     {
         diagnoses.Clear();
 
-        // 1. Emergências (prioridade máxima)
+        // 1. Emergency conditions (priority)
         if (responses.TryGetValue("intensidade", out var respIntensidade) && 
             (respIntensidade == "Forte (incapacitante)" || respIntensidade == "A pior dor que já senti") &&
             responses.TryGetValue("caracteristica", out var respCaracteristica) && respCaracteristica == "Aperto/pressão" &&
@@ -360,7 +380,7 @@ public class ChestQuiz : MonoBehaviour
             });
         }
 
-        // 2. Problemas cardíacos
+        // 2. Cardiac problems
         if (responses.TryGetValue("historia_cardiaca", out var respHistCardiaca) && respHistCardiaca != "Não" &&
             responses.TryGetValue("fatores_risco", out var respFatoresRisco) && respFatoresRisco != "Não" &&
             responses.TryGetValue("duracao", out var respDuracao) && 
@@ -373,7 +393,7 @@ public class ChestQuiz : MonoBehaviour
             });
         }
 
-        // 3. Problemas pulmonares
+        // 3. Pulmonary problems
         if (responses.TryGetValue("febre", out var respFebre) && respFebre != "Não" &&
             responses.TryGetValue("tosse", out respTosse) && respTosse != "Não" &&
             responses.TryGetValue("piora_respirar", out var respPioraRespirar) && respPioraRespirar != "Não")
@@ -385,7 +405,7 @@ public class ChestQuiz : MonoBehaviour
             });
         }
 
-        // 4. Refluxo gastroesofágico
+        // 4. Gastroesophageal reflux
         if (responses.TryGetValue("caracteristica", out respCaracteristica) && respCaracteristica == "Queimação" &&
             responses.TryGetValue("nausea", out var respNausea) && respNausea != "Não" &&
             responses.TryGetValue("piora_respirar", out respPioraRespirar) && respPioraRespirar == "Não")
@@ -397,7 +417,7 @@ public class ChestQuiz : MonoBehaviour
             });
         }
 
-        // 5. Costocondrite
+        // 5. Costochondritis
         if (responses.TryGetValue("piora_movimento", out var respPioraMovimento) && respPioraMovimento == "Sim" &&
             responses.TryGetValue("piora_respirar", out respPioraRespirar) && respPioraRespirar != "Não" &&
             responses.TryGetValue("localizacao", out var respLocalizacao) && respLocalizacao == "Entre as costelas")
@@ -409,7 +429,7 @@ public class ChestQuiz : MonoBehaviour
             });
         }
 
-        // 6. Ansiedade
+        // 6. Anxiety
         if (responses.TryGetValue("ansiedade", out var respAnsiedade) && respAnsiedade != "Não" &&
             responses.TryGetValue("palpitacoes", out var respPalpitacoes) && respPalpitacoes != "Não" &&
             responses.TryGetValue("caracteristica", out respCaracteristica) && respCaracteristica == "Pontada/agulhada")
@@ -421,7 +441,7 @@ public class ChestQuiz : MonoBehaviour
             });
         }
 
-        // 7. Pneumotórax
+        // 7. Pneumothorax
         if (responses.TryGetValue("falta_ar", out respFaltaAr) && respFaltaAr != "Não" &&
             responses.TryGetValue("intensidade", out respIntensidade) && respIntensidade == "Forte (incapacitante)" &&
             responses.TryGetValue("piora_respirar", out respPioraRespirar) && respPioraRespirar == "Sim, muito")
@@ -436,7 +456,6 @@ public class ChestQuiz : MonoBehaviour
 
     private void DisplayResults()
     {
-        // Limpa resultados anteriores
         foreach (Transform child in diagnosesContainer)
         {
             Destroy(child.gameObject);
@@ -444,8 +463,10 @@ public class ChestQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "🔍 DIAGNÓSTICOS IDENTIFICADOS:";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -454,29 +475,48 @@ public class ChestQuiz : MonoBehaviour
         }
         else
         {
-            resultText.text = "Nenhuma condição específica identificada";
+            resultText.text = "🟢 Nenhuma condição específica identificada";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 50)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda profissional IMEDIATA";
-        }
-        else if (totalScore >= 30)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação médica em até 48h";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Monitore sintomas e consulte se persistirem";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Mantenha hábitos saudáveis";
-        }
-
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/120";
+    }
 
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 50) return "🚨 RISCO MUITO ELEVADO - Procure ajuda médica IMEDIATA";
+        if (totalScore >= 30) return "⚠️ RISCO MODERADO/ALTO - Agende avaliação em até 24h";
+        if (totalScore >= 15) return "🔍 RISCO LEVE - Monitore sintomas e consulte se persistirem";
+        return "✅ BAIXO RISCO - Mantenha hábitos saudáveis";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 50) return "MUITO ELEVADO";
+        if (totalScore >= 30) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  // Substituir por UsuarioLogado.userId quando tiver o login
+                username = "João Silva" // Substituir por UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_peito.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }

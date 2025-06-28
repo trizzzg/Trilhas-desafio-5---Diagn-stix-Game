@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1ff382cd36311b241be230434408fd56
+guid: 0a0bbde88dac8444192430010431d150
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6028594502098096254
-    second: tiny_speech_indicators-11x11_0
+      213: -1264916263970079612
+    second: Fala_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: tiny_speech_indicators-11x11_0
+      name: Fala_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 88
-        height: 11
+        x: 16
+        y: 34
+        width: 441
+        height: 182
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 28fe19fbd31265ca0800000000000000
-      internalID: -6028594502098096254
+      spriteID: 48cf2771c5d127ee0800000000000000
+      internalID: -1264916263970079612
       vertices: []
       indices: 
       edges: []
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Fala_0: -1264916263970079612
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -228,6 +228,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -1234,7 +1247,52 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      speech baloons 1_0: 4891780885591033970
+      speech baloons 1_1: 3915197342800255187
+      speech baloons 1_10: 7389077867644189250
+      speech baloons 1_11: 5769211608609356460
+      speech baloons 1_12: -3840398184772724181
+      speech baloons 1_13: -8501145123141030806
+      speech baloons 1_14: 7916232460828666021
+      speech baloons 1_15: -2883340500184815938
+      speech baloons 1_16: 5537954390203455225
+      speech baloons 1_17: -6681678654115359457
+      speech baloons 1_18: 6451681012340149567
+      speech baloons 1_19: -6135997569769743088
+      speech baloons 1_2: -5284309258176866297
+      speech baloons 1_20: 7719653120260069021
+      speech baloons 1_21: 4222531120834537013
+      speech baloons 1_22: -1825138796704929736
+      speech baloons 1_23: -7157393423333600180
+      speech baloons 1_24: 1216282515606780406
+      speech baloons 1_25: 7461552233753261343
+      speech baloons 1_26: 7163942583975926930
+      speech baloons 1_27: 8293991068854079650
+      speech baloons 1_28: -1735975030913461024
+      speech baloons 1_29: 520829716556606876
+      speech baloons 1_3: -5040391572461127386
+      speech baloons 1_30: 4315540224571163365
+      speech baloons 1_31: 321157240080930571
+      speech baloons 1_32: 8664215306066629345
+      speech baloons 1_33: -1705992963384263383
+      speech baloons 1_34: 387791487081395493
+      speech baloons 1_35: 631326380839356596
+      speech baloons 1_36: -1636029417583811218
+      speech baloons 1_37: -9168547820141101000
+      speech baloons 1_38: 2429424726105968461
+      speech baloons 1_39: -2493284086259928471
+      speech baloons 1_4: 4300956839840735386
+      speech baloons 1_40: -567742840679583795
+      speech baloons 1_41: 3078633090752749392
+      speech baloons 1_42: -6691172186334514905
+      speech baloons 1_43: 103614882359209076
+      speech baloons 1_44: 2112131202389227514
+      speech baloons 1_5: -5426779176080397702
+      speech baloons 1_6: -2668481849057551742
+      speech baloons 1_7: -4562670945049351915
+      speech baloons 1_8: 8256253743610557883
+      speech baloons 1_9: -6118091203192920933
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

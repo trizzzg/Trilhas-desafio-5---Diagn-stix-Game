@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class SkinQuiz : MonoBehaviour
@@ -17,6 +18,24 @@ public class SkinQuiz : MonoBehaviour
     {
         public string condition;
         public string recommendation;
+    }
+
+    [Serializable]
+    public class UserInfo
+    {
+        public string userId;
+        public string username;
+    }
+
+    [Serializable]
+    public class QuizResult
+    {
+        public UserInfo user;
+        public Dictionary<string, string> responses;
+        public int totalScore;
+        public List<Diagnosis> diagnoses;
+        public string riskLevel;
+        public string timestamp;
     }
 
     private Dictionary<string, string> responses = new Dictionary<string, string>();
@@ -306,8 +325,7 @@ public class SkinQuiz : MonoBehaviour
 
             UnityEngine.UI.Button button = optionButton.GetComponent<UnityEngine.UI.Button>();
             string keyCopy = option.Key;
-            Question questionCopy = currentQuestion;
-            button.onClick.AddListener(() => OnOptionSelected(keyCopy, questionCopy));
+            button.onClick.AddListener(() => OnOptionSelected(keyCopy, currentQuestion));
         }
     }
 
@@ -328,13 +346,14 @@ public class SkinQuiz : MonoBehaviour
         resultPanel.SetActive(true);
         EvaluateDiagnoses();
         DisplayResults();
+        SaveResultsToJson();
     }
 
     private void EvaluateDiagnoses()
     {
         diagnoses.Clear();
 
-        // 1. Emergências (3 diagnósticos)
+        // 1. Emergency conditions (priority)
         if (responses.TryGetValue("febre", out var respFebre) && respFebre == "Sim, febre alta (>38°C)" &&
             responses.TryGetValue("tipo_sintoma", out var respTipo) && respTipo == "Erupções/bolhas")
         {
@@ -365,7 +384,7 @@ public class SkinQuiz : MonoBehaviour
             });
         }
 
-        // 2. Infecções (3 diagnósticos)
+        // 2. Infections
         if (responses.TryGetValue("secrecao", out var respSecrecao) && respSecrecao == "Sim, purulenta (amarela/esverdeada)" &&
             responses.TryGetValue("localizacao", out var respLocalizacao) && 
             (respLocalizacao == "Rosto" || respLocalizacao == "Mãos/pés"))
@@ -397,7 +416,7 @@ public class SkinQuiz : MonoBehaviour
             });
         }
 
-        // 3. Dermatites (2 diagnósticos)
+        // 3. Dermatitis
         if (responses.TryGetValue("produto_novo", out var respProduto) && respProduto != "Não" &&
             responses.TryGetValue("alergia_historico", out var respAlergia) && respAlergia != "Não")
         {
@@ -418,7 +437,7 @@ public class SkinQuiz : MonoBehaviour
             });
         }
 
-        // 4. Outras condições (2 diagnósticos)
+        // 4. Other conditions
         if (responses.TryGetValue("piora_calor", out var respCalor) && respCalor == "Sim, muito" &&
             responses.TryGetValue("tipo_sintoma", out respTipo) && respTipo == "Coceira intensa")
         {
@@ -442,7 +461,6 @@ public class SkinQuiz : MonoBehaviour
 
     private void DisplayResults()
     {
-        // Limpa resultados anteriores
         foreach (Transform child in diagnosesContainer)
         {
             Destroy(child.gameObject);
@@ -450,8 +468,10 @@ public class SkinQuiz : MonoBehaviour
 
         if (diagnoses.Count > 0)
         {
-            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS (10 possibilidades):";
-            for (int i = 0; i < diagnoses.Count; i++)
+            resultText.text = "DIAGNÓSTICOS IDENTIFICADOS:";
+            int maxDiagnosesToShow = Mathf.Min(diagnoses.Count, 2);
+
+            for (int i = 0; i < maxDiagnosesToShow; i++)
             {
                 GameObject diagnosisObj = Instantiate(diagnosisPrefab, diagnosesContainer);
                 TMPro.TextMeshProUGUI diagnosisText = diagnosisObj.GetComponent<TMPro.TextMeshProUGUI>();
@@ -460,28 +480,48 @@ public class SkinQuiz : MonoBehaviour
         }
         else
         {
-            resultText.text = "Nenhuma condição específica identificada";
+            resultText.text = "🟢 Nenhuma condição específica identificada";
         }
 
-        // Classificação por pontuação
-        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n";
-        if (totalScore >= 50)
-        {
-            riskLevelText.text += "RISCO MUITO ELEVADO - Procure ajuda dermatológica IMEDIATA";
-        }
-        else if (totalScore >= 30)
-        {
-            riskLevelText.text += "RISCO MODERADO/ALTO - Agende avaliação em até 48h";
-        }
-        else if (totalScore >= 15)
-        {
-            riskLevelText.text += "RISCO LEVE - Monitore sintomas e consulte se persistirem";
-        }
-        else
-        {
-            riskLevelText.text += "BAIXO RISCO - Mantenha cuidados básicos com a pele";
-        }
-
+        riskLevelText.text = "NÍVEL DE RISCO GERAL:\n" + GetRiskLevelText();
         scoreText.text = $"Pontuação total: {totalScore}/120";
+    }
+
+    private string GetRiskLevelText()
+    {
+        if (totalScore >= 50) return "🚨 RISCO MUITO ELEVADO - Procure ajuda dermatológica IMEDIATA";
+        if (totalScore >= 30) return "⚠️ RISCO MODERADO/ALTO - Agende avaliação em até 48h";
+        if (totalScore >= 15) return "🔍 RISCO LEVE - Monitore sintomas e consulte se persistirem";
+        return "✅ BAIXO RISCO - Mantenha cuidados básicos com a pele";
+    }
+
+    private string GetRiskLevel()
+    {
+        if (totalScore >= 50) return "MUITO ELEVADO";
+        if (totalScore >= 30) return "ALTO";
+        if (totalScore >= 15) return "MODERADO";
+        return "BAIXO";
+    }
+
+    private void SaveResultsToJson()
+    {
+        QuizResult result = new QuizResult
+        {
+            user = new UserInfo
+            {
+                userId = "usr123",  // Substituir por UsuarioLogado.userId quando tiver o login
+                username = "João Silva" // Substituir por UsuarioLogado.username quando tiver o login
+            },
+            responses = responses,
+            totalScore = totalScore,
+            diagnoses = diagnoses,
+            riskLevel = GetRiskLevel(),
+            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        string json = JsonUtility.ToJson(result, true);
+        string path = Path.Combine(Application.persistentDataPath, "diagnostico_pele.json");
+        File.WriteAllText(path, json);
+        Debug.Log("Resultados salvos em: " + path);
     }
 }
